@@ -1,28 +1,46 @@
-public class HttpRequestService {
-    public HttpRequest myRequest {private set; public get;}
-    public static final String GET_METHOD = 'GET';
-    public static final String POST_METHOD = 'POST';
+public virtual class HttpRequestService {
+    @TestVisible protected HttpRequest myRequest {private set; protected get;}
+	@TestVisible private Map<RequestMethod, String> requestMethodMap;
 
-    public HttpRequestService(String endpointApi, String requestMethod) {
-        this.myRequest = new HttpRequest();
+    @TestVisible 
+	protected HttpRequestService(String endpointApi, RequestMethod method) {
+        this.requestMethodMap = new Map<RequestMethod, String>{
+			RequestMethod.GET => 'GET',
+			RequestMethod.POST => 'POST', 
+			RequestMethod.PUT => 'PUT', 
+			RequestMethod.PATCH => 'PATCH', 
+			RequestMethod.DEL => 'DELETE'
+		};
+		this.myRequest = new HttpRequest();
         this.myRequest.setEndpoint(endpointApi);
-        this.myRequest.setMethod(requestMethod);
+        this.myRequest.setMethod(requestMethodMap.get(method));
     }
 
-    public void setCustomHeader(String headerTitle, String headerValue) {
+    @TestVisible 
+	protected void setCustomHeader(String headerTitle, String headerValue) {
         this.myRequest.setHeader(headerTitle, headerValue);
     }
 
-    public void setHeaderContentType(String contentType) {
+    @TestVisible 
+	protected void setHeaderContentType(String contentType) {
         this.myRequest.setHeader('Content-Type', contentType);
     }
 
-    public void setRequestBody(String body) {
+    @TestVisible 
+	protected void setRequestBody(String body) {
         this.myRequest.setBody(body);
     }
 
-    public HttpResponse sendRequest() {
+	@TestVisible 
+	protected void setRequestBody(Blob body) {
+        this.myRequest.setBodyAsBlob(body);
+    }
+
+    @TestVisible 
+	protected HttpResponse sendRequest() {
         Http transfer = new Http();
         return transfer.send(this.myRequest);
     }
+
+	public enum RequestMethod { GET, POST, PUT, PATCH, DEL }
 }
